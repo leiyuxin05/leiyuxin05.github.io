@@ -1,2 +1,199 @@
-#leiyuxin05.github.io
-个人网站
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事地图 - 记录你的旅行记忆</title>
+    
+    <!-- 高德地图API -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=0874b5c6096d30f6f75ae6949f5c4468"></script>
+    <script src="https://webapi.amap.com/ui/1.1/main.js"></script>
+    
+    <!-- 样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- 字体图标 -->
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_3223711_74klkj9b6lr.css">
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 导航栏 -->
+        <header class="header">
+            <div class="container">
+                <h1><i class="iconfont icon-map"></i> 故事地图</h1>
+                <nav>
+                    <button @click="showMap = true" :class="{ active: showMap }">
+                        <i class="iconfont icon-map"></i> 地图
+                    </button>
+                    <button @click="showMap = false" :class="{ active: !showMap }">
+                        <i class="iconfont icon-timeline"></i> 时间线
+                    </button>
+                    <button @click="exportData" title="导出数据">
+                        <i class="iconfont icon-export"></i>
+                    </button>
+                    <button @click="importData" title="导入数据">
+                        <i class="iconfont icon-import"></i>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main">
+            <!-- 地图视图 -->
+            <div v-if="showMap" class="map-view">
+                <div class="search-box">
+                    <input 
+                        v-model="searchKeyword"
+                        @keyup.enter="searchLocation"
+                        placeholder="搜索地点（如：北京天安门）"
+                    />
+                    <button @click="searchLocation">
+                        <i class="iconfont icon-search"></i>
+                    </button>
+                </div>
+                
+                <!-- 地图容器 -->
+                <div id="map" class="map"></div>
+                
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="btn-add" @click="addStory">
+                        <i class="iconfont icon-add"></i> 添加故事
+                    </button>
+                    <button class="btn-my-location" @click="getMyLocation">
+                        <i class="iconfont icon-location"></i> 我的位置
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 时间线视图 -->
+            <div v-else class="timeline-view">
+                <h2><i class="iconfont icon-timeline"></i> 我的故事时间线</h2>
+                
+                <div v-if="stories.length === 0" class="empty">
+                    <p><i class="iconfont icon-empty"></i> 还没有故事，点击地图开始记录吧！</p>
+                </div>
+                
+                <div v-else class="stories-container">
+                    <div 
+                        v-for="(story, index) in stories" 
+                        :key="story.id"
+                        class="story-card"
+                        @click="editStory(story)"
+                    >
+                        <div class="story-index">{{ index + 1 }}</div>
+                        <div class="story-content">
+                            <h3>{{ story.title || '未命名故事' }}</h3>
+                            <div class="story-meta">
+                                <span><i class="iconfont icon-date"></i> {{ story.date }}</span>
+                                <span><i class="iconfont icon-location"></i> {{ story.address }}</span>
+                            </div>
+                            <p class="story-preview">{{ story.content.substring(0, 100) }}{{ story.content.length > 100 ? '...' : '' }}</p>
+                            <div class="story-images" v-if="story.images && story.images.length > 0">
+                                <div class="image-count">
+                                    <i class="iconfont icon-image"></i> {{ story.images.length }}张图片
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-edit" @click.stop="editStory(story)">
+                            <i class="iconfont icon-edit"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 故事编辑器弹窗 -->
+        <div v-if="showEditor" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>{{ editingStory ? '编辑故事' : '添加新故事' }}</h3>
+                    <button class="btn-close" @click="closeEditor">×</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>故事标题</label>
+                        <input v-model="storyForm.title" placeholder="给故事起个名字">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>地点名称</label>
+                        <input v-model="storyForm.address" placeholder="例如：北京故宫">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>日期</label>
+                        <input type="date" v-model="storyForm.date">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>故事内容</label>
+                        <textarea 
+                            v-model="storyForm.content" 
+                            rows="6"
+                            placeholder="写下你的故事..."
+                        ></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>上传图片</label>
+                        <div class="image-upload-area">
+                            <div 
+                                v-for="(image, index) in storyForm.images" 
+                                :key="index"
+                                class="image-preview"
+                            >
+                                <img :src="image" alt="预览">
+                                <button @click="removeImage(index)">×</button>
+                            </div>
+                            <label class="upload-btn">
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    multiple
+                                    @change="handleImageUpload"
+                                    style="display: none;"
+                                >
+                                <i class="iconfont icon-add"></i> 添加图片
+                            </label>
+                        </div>
+                        <p class="upload-tip">支持 JPG、PNG 格式，单张图片建议小于 2MB</p>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn-cancel" @click="closeEditor">取消</button>
+                    <button class="btn-save" @click="saveStory">保存</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 确认删除弹窗 -->
+        <div v-if="showDeleteConfirm" class="modal-overlay">
+            <div class="modal-content small">
+                <div class="modal-header">
+                    <h3>确认删除</h3>
+                </div>
+                <div class="modal-body">
+                    <p>确定要删除这个故事吗？此操作不可恢复。</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" @click="showDeleteConfirm = false">取消</button>
+                    <button class="btn-delete" @click="confirmDelete">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
