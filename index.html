@@ -3,627 +3,477 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高德地图 - 地址搜索与显示</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>PathLife - 故事地图</title>
+    <!-- 引入高德地图JS API -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=cbe4d15c534a63b892ad057a299f88d2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 100%;
-            overflow: hidden;
-        }
-        
-        header {
-            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
-            color: white;
-            padding: 1.2rem 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        h1 i {
-            color: #ffde59;
-        }
-        
-        .api-info {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 8px 15px;
-            border-radius: 30px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .sidebar {
-            width: 320px;
-            background-color: white;
-            padding: 1.5rem;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        
-        .section {
-            background-color: #f9fafc;
-            border-radius: 10px;
-            padding: 1.2rem;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
-        }
-        
-        .section h2 {
-            color: #2c3e50;
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #eaeff5;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .section h2 i {
-            color: #4b6cb7;
-        }
-        
-        .search-box {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-        
-        input[type="text"] {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e1e5eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #4b6cb7;
-            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
-        }
-        
-        button {
-            padding: 12px 20px;
-            background-color: #4b6cb7;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background-color: #3a5795;
-            transform: translateY(-2px);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        
-        .btn-success {
-            background-color: #28a745;
-        }
-        
-        .btn-success:hover {
-            background-color: #218838;
-        }
-        
-        .buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        #map-container {
-            flex: 1;
-            position: relative;
-            min-height: 500px;
-        }
-        
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .results-container {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 10px;
-        }
-        
-        .result-item {
-            background-color: white;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-left: 4px solid #4b6cb7;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .result-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .result-item h3 {
-            color: #2c3e50;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-        
-        .result-item p {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        
-        .coordinates {
-            font-family: monospace;
-            background-color: #f8f9fa;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            color: #4b6cb7;
-        }
-        
-        .instructions {
-            background-color: #e8f4fd;
-            border-left: 4px solid #2196f3;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
-        
-        .instructions h3 {
-            color: #0d6efd;
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-        
-        .instructions p {
-            font-size: 0.9rem;
-            color: #555;
-        }
-        
-        .status {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        
-        #search-status {
-            font-weight: 600;
-        }
-        
-        #result-count {
-            color: #4b6cb7;
-            font-weight: 700;
-        }
-        
-        footer {
-            background-color: #2c3e50;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { display: flex; height: 100vh; background: #f5f7fa; color: #333; }
+        #mapContainer { flex: 1; height: 100%; }
+        #sidebar { width: 380px; background: white; border-left: 1px solid #e1e5eb; display: flex; flex-direction: column; }
+        .logo { padding: 20px; border-bottom: 1px solid #e1e5eb; }
+        .logo h1 { font-size: 1.5rem; color: #2c3e50; }
+        .logo p { color: #7f8c8d; font-size: 0.9rem; margin-top: 5px; }
+        .search-box { padding: 20px; border-bottom: 1px solid #e1e5eb; }
+        .search-container { display: flex; gap: 10px; }
+        #searchInput { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        #searchButton { background: #3498db; color: white; border: none; border-radius: 8px; padding: 0 20px; cursor: pointer; font-weight: bold; }
+        #searchButton:hover { background: #2980b9; }
+        #searchResults { max-height: 300px; overflow-y: auto; margin-top: 10px; border: 1px solid #eee; border-radius: 8px; display: none; }
+        .result-item { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .result-item:hover { background: #f8f9fa; }
+        .result-item h4 { color: #2c3e50; margin-bottom: 5px; }
+        .result-item p { color: #666; font-size: 0.9rem; }
+        .stories-list { flex: 1; overflow-y: auto; padding: 20px; }
+        .story-card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 10px; padding: 15px; margin-bottom: 15px; cursor: pointer; }
+        .story-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .story-card.active { border-color: #3498db; background: #e3f2fd; }
+        .story-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .story-title { font-weight: bold; color: #2c3e50; }
+        .story-time { color: #95a5a6; font-size: 0.8rem; }
+        .story-location { color: #3498db; font-size: 0.9rem; margin-bottom: 8px; }
+        .story-preview { color: #666; font-size: 0.9rem; line-height: 1.4; max-height: 60px; overflow: hidden; }
+        #editorModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .editor-content { width: 90%; max-width: 800px; height: 80%; background: white; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; }
+        .editor-header { padding: 20px; border-bottom: 1px solid #eee; }
+        .editor-header h2 { color: #2c3e50; }
+        .editor-header .location-info { color: #7f8c8d; font-size: 0.9rem; margin-top: 5px; }
+        .editor-toolbar { padding: 10px 20px; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; gap: 10px; }
+        .editor-toolbar button { padding: 8px 15px; background: white; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; }
+        #storyEditor { flex: 1; padding: 20px; font-size: 1rem; line-height: 1.6; overflow-y: auto; outline: none; border: none; min-height: 200px; }
+        .editor-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
+        .editor-footer button { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+        #saveStory { background: #3498db; color: white; }
+        #saveStory:hover { background: #2980b9; }
+        #closeEditor { background: #ecf0f1; color: #333; }
+        #closeEditor:hover { background: #d5dbdb; }
+        #toggleRoute { position: absolute; top: 20px; left: 20px; z-index: 10; background: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #2c3e50; }
+        .status-box { background: #e8f4fd; border: 1px solid #b6e0fe; border-radius: 8px; padding: 15px; margin: 0 20px 15px; font-size: 0.9rem; }
+        .status-box.success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .loading { text-align: center; padding: 10px; color: #7f8c8d; font-size: 0.9rem; }
         @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                max-height: 40vh;
-            }
-            
-            #map-container {
-                height: 60vh;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: 45%; border-left: none; border-top: 1px solid #e1e5eb; }
+            #mapContainer { height: 55%; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <h1><i class="fas fa-map-marked-alt"></i> 高德地图地址搜索系统</h1>
-                <div class="api-info">
-                    <i class="fas fa-key"></i>
-                    <span>已启用高德地图 JS API</span>
-                </div>
+    <div id="mapContainer"></div>
+    <button id="toggleRoute">📍 显示路线图</button>
+    <div id="sidebar">
+        <div class="logo">
+            <h1>🗺️ PathLife 故事地图</h1>
+            <p>记录旅程，串联每个故事瞬间</p>
+        </div>
+        <div class="status-box success" id="keyStatus">
+            ✅ API Key 已生效 (服务已开通)
+        </div>
+        <div class="search-box">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="搜索地点，如：故宫博物院、上海外滩...">
+                <button id="searchButton">搜索</button>
             </div>
-        </header>
-        
-        <div class="content">
-            <div class="sidebar">
-                <div class="section">
-                    <h2><i class="fas fa-search"></i> 地址搜索</h2>
-                    <div class="search-box">
-                        <div class="input-group">
-                            <input type="text" id="keyword" placeholder="输入地址、地点、POI名称..." value="天安门">
-                            <button onclick="searchPlace()" id="search-btn">
-                                <i class="fas fa-search"></i> 搜索
-                            </button>
-                        </div>
-                        
-                        <div class="buttons">
-                            <button onclick="searchNearby('餐饮')" class="btn-secondary">
-                                <i class="fas fa-utensils"></i> 附近餐饮
-                            </button>
-                            <button onclick="searchNearby('酒店')" class="btn-secondary">
-                                <i class="fas fa-hotel"></i> 附近酒店
-                            </button>
-                            <button onclick="clearSearch()" class="btn-success">
-                                <i class="fas fa-trash-alt"></i> 清空
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="status">
-                        <div>
-                            <span id="search-status">就绪</span>
-                        </div>
-                        <div>
-                            结果: <span id="result-count">0</span> 个
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <h2><i class="fas fa-list-ul"></i> 搜索结果</h2>
-                    <div class="results-container" id="results-container">
-                        <div class="result-item" style="opacity: 0.7;">
-                            <h3>示例地点：天安门</h3>
-                            <p>北京市东城区东长安街</p>
-                            <p class="coordinates">坐标: 116.397428, 39.90923</p>
-                        </div>
-                        <div class="result-item" style="opacity: 0.7;">
-                            <h3>示例地点：故宫博物院</h3>
-                            <p>北京市东城区景山前街4号</p>
-                            <p class="coordinates">坐标: 116.397, 39.916</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="instructions">
-                    <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
-                    <p>1. 在搜索框输入地址或地点名称进行搜索</p>
-                    <p>2. 点击搜索结果可在地图上定位</p>
-                    <p>3. 点击地图任意位置可添加标记</p>
-                    <p>4. 使用"附近餐饮/酒店"按钮快速搜索周边</p>
-                </div>
+            <div id="searchResults"></div>
+        </div>
+        <div class="stories-list" id="storiesList"></div>
+    </div>
+    <div id="editorModal">
+        <div class="editor-content">
+            <div class="editor-header">
+                <h2>✏️ 编辑故事</h2>
+                <div class="location-info" id="editorLocation"></div>
             </div>
-            
-            <div class="section" id="map-container">
-                <div id="map"></div>
+            <div class="editor-toolbar">
+                <button onclick="formatText('bold')"><b>B</b></button>
+                <button onclick="formatText('italic')"><i>I</i></button>
+                <button onclick="formatText('insertUnorderedList')">📋 列表</button>
+                <button onclick="insertImage()">🖼️ 图片</button>
+            </div>
+            <div id="storyEditor" contenteditable="true" placeholder="写下你的故事..."></div>
+            <div class="editor-footer">
+                <button id="closeEditor">取消</button>
+                <button id="saveStory">保存故事</button>
             </div>
         </div>
-        
-        <footer>
-            <p>© 2023 高德地图 JS API 实现 | 本系统使用高德地图 JavaScript API 开发</p>
-        </footer>
     </div>
 
-    <!-- 引入高德地图JS API -->
-    <script src="https://webapi.amap.com/maps?v=2.0&key=YOUR_API_KEY_HERE&plugin=AMap.PlaceSearch,AMap.ToolBar,AMap.Scale,AMap.ControlBar"></script>
-    
     <script>
-        // 替换这里为你的高德地图JS API密钥
-        // 如果密钥已在上面的script标签中设置，这里可以留空
+        // 配置
+        const AMapKey = '0874b5c6096d30f6f75ae6949f5c4468';
         
+        // 全局变量
+        let map = null;
+        let markers = [];
+        let currentPlace = null;
+        let editingStoryId = null;
+        let routeLine = null;
+        let isRouteVisible = false;
+        let placeSearch = null;
+        let stories = JSON.parse(localStorage.getItem('pathLifeStories')) || [];
+
         // 初始化地图
-        var map = new AMap.Map('map', {
-            zoom: 12, // 缩放级别
-            center: [116.397428, 39.90923], // 中心点坐标（北京天安门）
-            viewMode: '2D', // 使用2D地图
-            resizeEnable: true // 是否监控地图容器尺寸变化
-        });
-        
-        // 创建地点搜索实例
-        var placeSearch = new AMap.PlaceSearch({
-            map: map, // 将搜索结果展现在地图上
-            pageSize: 10, // 单页显示结果条数
-            pageIndex: 1, // 页码
-            city: "全国", // 搜索城市，默认全国
-            autoFitView: true, // 是否自动调整地图视野到显示结果
-            panel: "results-container" // 结果列表将在此容器中展示，覆盖默认的panel
-        });
-        
-        // 存储当前地图上的标记
-        var currentMarkers = [];
-        
-        // 添加地图控件
-        map.addControl(new AMap.ToolBar());  // 工具条（缩放、倾斜）
-        map.addControl(new AMap.Scale());     // 比例尺
-        map.addControl(new AMap.ControlBar()); // 3D控制
-        
-        // 搜索函数
-        function searchPlace() {
-            var keyword = document.getElementById('keyword').value;
-            if (!keyword.trim()) {
-                updateStatus('请输入搜索关键字', 'error');
+        function initMap() {
+            map = new AMap.Map('mapContainer', {
+                zoom: 12,
+                center: [116.397428, 39.90923],
+                viewMode: '2D',
+                resizeEnable: true
+            });
+            
+            console.log('地图初始化成功，Key:', AMapKey.substring(0, 8) + '...');
+            
+            // 加载已有故事
+            loadStoriesOnMap();
+            renderStoryList();
+            
+            // 初始化搜索功能
+            initSearch();
+        }
+
+        // 初始化搜索
+        function initSearch() {
+            AMap.plugin('AMap.PlaceSearch', function() {
+                placeSearch = new AMap.PlaceSearch({
+                    pageSize: 10,
+                    city: '全国',
+                    citylimit: false,
+                    extensions: 'base'
+                });
+                console.log('搜索功能初始化成功');
+            });
+        }
+
+        // 执行搜索
+        function performSearch() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!keyword) {
+                alert('请输入搜索关键词');
                 return;
             }
             
-            updateStatus('搜索中...', 'loading');
+            if (!placeSearch) {
+                alert('搜索功能正在初始化，请稍候...');
+                return;
+            }
             
+            // 显示加载状态
+            resultsContainer.innerHTML = '<div class="loading">搜索中...</div>';
+            resultsContainer.style.display = 'block';
+            
+            // 执行搜索
             placeSearch.search(keyword, function(status, result) {
                 if (status === 'complete' && result.info === 'OK') {
-                    updateStatus('搜索成功', 'success');
+                    const pois = result.poiList.pois;
+                    displaySearchResults(pois, resultsContainer);
                     
-                    // 更新结果计数
-                    if (result.poiList && result.poiList.pois) {
-                        var pois = result.poiList.pois;
-                        document.getElementById('result-count').textContent = pois.length;
-                        
-                        // 清空之前的结果容器（除了示例）
-                        var resultsContainer = document.getElementById('results-container');
-                        var exampleItems = resultsContainer.querySelectorAll('.result-item[style*="opacity: 0.7"]');
-                        resultsContainer.innerHTML = '';
-                        
-                        // 重新添加示例项（如果需要）
-                        exampleItems.forEach(item => {
-                            resultsContainer.appendChild(item);
-                        });
-                        
-                        // 添加新的结果项
-                        pois.forEach(function(poi, index) {
-                            var resultItem = document.createElement('div');
-                            resultItem.className = 'result-item';
-                            resultItem.innerHTML = `
-                                <h3>${poi.name}</h3>
-                                <p>${poi.address || '地址未提供'}</p>
-                                <p class="coordinates">坐标: ${poi.location.lng.toFixed(6)}, ${poi.location.lat.toFixed(6)}</p>
-                                <p style="color: #4b6cb7; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-phone-alt"></i> ${poi.tel || '电话未提供'}
-                                </p>
-                            `;
-                            
-                            // 点击结果项时定位到该地点
-                            resultItem.addEventListener('click', function() {
-                                map.setCenter([poi.location.lng, poi.location.lat]);
-                                map.setZoom(16);
-                                
-                                // 添加一个闪烁的标记
-                                addMarker(poi.location, poi.name, true);
-                            });
-                            
-                            resultsContainer.appendChild(resultItem);
-                        });
+                    // 如果有结果，定位到第一个
+                    if (pois.length > 0) {
+                        map.setCenter([pois[0].location.lng, pois[0].location.lat]);
+                        map.setZoom(15);
                     }
                 } else {
-                    updateStatus('搜索失败: ' + (result.info || '未知错误'), 'error');
-                    document.getElementById('result-count').textContent = '0';
+                    resultsContainer.innerHTML = `
+                        <div class="result-item">
+                            <p style="color:#e74c3c;">搜索失败</p>
+                            <p style="font-size:0.9rem;color:#666;">状态: ${status}, 信息: ${result.info || '未知错误'}</p>
+                        </div>`;
                 }
             });
         }
-        
-        // 搜索周边
-        function searchNearby(category) {
-            var center = map.getCenter();
-            placeSearch.searchNearBy(category, [center.lng, center.lat], 2000, function(status, result) {
-                if (status === 'complete' && result.info === 'OK') {
-                    updateStatus('找到附近' + category, 'success');
-                    
-                    if (result.poiList && result.poiList.pois) {
-                        var pois = result.poiList.pois;
-                        document.getElementById('result-count').textContent = pois.length;
-                        
-                        // 更新结果容器
-                        var resultsContainer = document.getElementById('results-container');
-                        var exampleItems = resultsContainer.querySelectorAll('.result-item[style*="opacity: 0.7"]');
-                        resultsContainer.innerHTML = '';
-                        
-                        exampleItems.forEach(item => {
-                            resultsContainer.appendChild(item);
-                        });
-                        
-                        // 添加新的结果项
-                        pois.forEach(function(poi) {
-                            var resultItem = document.createElement('div');
-                            resultItem.className = 'result-item';
-                            resultItem.innerHTML = `
-                                <h3>${poi.name}</h3>
-                                <p>${poi.address || '地址未提供'}</p>
-                                <p class="coordinates">坐标: ${poi.location.lng.toFixed(6)}, ${poi.location.lat.toFixed(6)}</p>
-                                <p style="color: #4b6cb7; font-size: 0.85rem; margin-top: 5px;">
-                                    <i class="fas fa-phone-alt"></i> ${poi.tel || '电话未提供'}
-                                </p>
-                            `;
-                            
-                            resultItem.addEventListener('click', function() {
-                                map.setCenter([poi.location.lng, poi.location.lat]);
-                                map.setZoom(16);
-                                addMarker(poi.location, poi.name, true);
-                            });
-                            
-                            resultsContainer.appendChild(resultItem);
-                        });
-                    }
+
+        // 显示搜索结果
+        function displaySearchResults(pois, container) {
+            if (pois.length === 0) {
+                container.innerHTML = '<div class="result-item"><p>未找到相关地点</p></div>';
+                return;
+            }
+            
+            container.innerHTML = pois.map(poi => `
+                <div class="result-item" data-lng="${poi.location.lng}" data-lat="${poi.location.lat}">
+                    <h4>${poi.name}</h4>
+                    <p>${poi.address || poi.pname + poi.cityname + poi.adname}</p>
+                    <button onclick="selectPlaceFromResult(this)" style="background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;margin-top:8px;cursor:pointer;font-size:0.8rem;">
+                        选择此地
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 选择地点
+        function selectPlaceFromResult(button) {
+            const item = button.closest('.result-item');
+            const place = {
+                name: item.querySelector('h4').textContent,
+                address: item.querySelector('p').textContent,
+                location: {
+                    lng: parseFloat(item.dataset.lng),
+                    lat: parseFloat(item.dataset.lat)
                 }
+            };
+            
+            currentPlace = place;
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = place.name;
+            
+            // 清除旧标记，添加新标记
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            const marker = new AMap.Marker({
+                position: [place.location.lng, place.location.lat],
+                map: map,
+                title: place.name,
+                animation: "AMAP_ANIMATION_DROP"
             });
-        }
-        
-        // 清空搜索结果
-        function clearSearch() {
-            map.clearMap(); // 清除地图上所有覆盖物
-            document.getElementById('keyword').value = '';
-            placeSearch.clear(); // 清除搜索结果
+            markers.push(marker);
             
-            // 清空结果列表（除了示例）
-            var resultsContainer = document.getElementById('results-container');
-            var exampleItems = resultsContainer.querySelectorAll('.result-item[style*="opacity: 0.7"]');
-            resultsContainer.innerHTML = '';
-            
-            exampleItems.forEach(item => {
-                resultsContainer.appendChild(item);
-            });
-            
-            updateStatus('已清空', 'info');
-            document.getElementById('result-count').textContent = '0';
-            currentMarkers = [];
-        }
-        
-        // 添加标记到地图
-        function addMarker(lnglat, title, isHighlight = false) {
-            // 清除之前的高亮标记
-            if (isHighlight) {
-                currentMarkers.forEach(marker => {
-                    if (marker.getExtData() && marker.getExtData().isHighlight) {
-                        map.remove(marker);
-                    }
-                });
-            }
-            
-            var marker = new AMap.Marker({
-                position: lnglat,
-                title: title,
-                map: map
-            });
-            
-            // 存储标记信息
-            marker.setExtData({ isHighlight: isHighlight });
-            currentMarkers.push(marker);
-            
-            // 如果是高亮标记，使其闪烁
-            if (isHighlight) {
-                var count = 0;
-                var flash = setInterval(function() {
-                    if (count >= 6) {
-                        clearInterval(flash);
-                        marker.setContent(marker.getContent().replace(/style="[^"]*"/, 'style="width: 30px; height: 30px;"'));
-                        return;
-                    }
-                    
-                    var size = count % 2 === 0 ? 40 : 30;
-                    marker.setContent(marker.getContent().replace(/style="[^"]*"/, `style="width: ${size}px; height: ${size}px;"`));
-                    count++;
-                }, 300);
-            }
-            
-            // 自动将地图中心移动到标记位置
-            map.setCenter(lnglat);
+            map.setCenter([place.location.lng, place.location.lat]);
             map.setZoom(16);
-        }
-        
-        // 更新状态显示
-        function updateStatus(message, type) {
-            var statusElement = document.getElementById('search-status');
-            statusElement.textContent = message;
             
-            // 根据类型设置颜色
-            switch(type) {
-                case 'loading':
-                    statusElement.style.color = '#ffc107';
-                    break;
-                case 'success':
-                    statusElement.style.color = '#28a745';
-                    break;
-                case 'error':
-                    statusElement.style.color = '#dc3545';
-                    break;
-                case 'info':
-                    statusElement.style.color = '#17a2b8';
-                    break;
-                default:
-                    statusElement.style.color = '#6c757d';
+            // 打开编辑器
+            openEditor(place);
+        }
+
+        // 打开编辑器
+        function openEditor(place, storyId = null) {
+            editingStoryId = storyId;
+            document.getElementById('editorLocation').textContent = `地点：${place.name}`;
+            
+            const editor = document.getElementById('storyEditor');
+            if (storyId) {
+                const story = stories.find(s => s.id === storyId);
+                editor.innerHTML = story?.content || '';
+            } else {
+                editor.innerHTML = '';
+            }
+            
+            document.getElementById('editorModal').style.display = 'flex';
+            setTimeout(() => editor.focus(), 100);
+        }
+
+        // 保存故事
+        function saveStory() {
+            if (!currentPlace) return;
+            
+            const editor = document.getElementById('storyEditor');
+            const content = editor.innerHTML.trim();
+            const textContent = editor.innerText.trim();
+            
+            if (!textContent) {
+                alert('请输入故事内容');
+                return;
+            }
+            
+            const storyData = {
+                id: editingStoryId || Date.now().toString(),
+                title: textContent.substring(0, 30) || '我的故事',
+                placeName: currentPlace.name,
+                lng: currentPlace.location.lng,
+                lat: currentPlace.location.lat,
+                address: currentPlace.address,
+                content: content,
+                time: new Date().toLocaleString(),
+                timestamp: Date.now()
+            };
+            
+            // 更新或添加故事
+            const index = stories.findIndex(s => s.id === storyData.id);
+            if (index > -1) {
+                stories[index] = storyData;
+            } else {
+                stories.push(storyData);
+            }
+            
+            // 按时间排序
+            stories.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // 保存到本地存储
+            localStorage.setItem('pathLifeStories', JSON.stringify(stories));
+            
+            // 更新界面
+            loadStoriesOnMap();
+            renderStoryList();
+            closeEditor();
+            
+            alert('✅ 故事已保存！');
+        }
+
+        // 在地图上加载故事标记
+        function loadStoriesOnMap() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            stories.forEach(story => {
+                const marker = new AMap.Marker({
+                    position: [story.lng, story.lat],
+                    map: map,
+                    title: story.placeName
+                });
+                
+                marker.on('click', () => {
+                    highlightStoryCard(story.id);
+                    const infoWindow = new AMap.InfoWindow({
+                        content: `
+                            <div style="padding:10px;max-width:250px;">
+                                <h4 style="margin:0 0 5px 0;">${story.placeName}</h4>
+                                <p style="color:#666;font-size:12px;margin:0 0 8px 0;">${story.time}</p>
+                                <p style="font-size:13px;line-height:1.4;">${story.content.replace(/<[^>]+>/g, '').substring(0, 80)}...</p>
+                                <button onclick="editStory('${story.id}')" style="background:#3498db;color:white;border:none;padding:5px 10px;border-radius:4px;margin-top:8px;cursor:pointer;">编辑</button>
+                            </div>
+                        `
+                    });
+                    infoWindow.open(map, [story.lng, story.lat]);
+                });
+                
+                markers.push(marker);
+            });
+            
+            updateRouteLine();
+        }
+
+        // 渲染故事列表
+        function renderStoryList() {
+            const container = document.getElementById('storiesList');
+            
+            if (stories.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:40px 20px;color:#95a5a6;">
+                        <p style="font-size:1.2rem;margin-bottom:10px;">还没有故事记录</p>
+                        <p>搜索一个地点，开始记录你的旅程吧！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = stories.map(story => `
+                <div class="story-card" data-id="${story.id}" onclick="focusOnStory('${story.id}')">
+                    <div class="story-header">
+                        <div class="story-title">${story.title}</div>
+                        <div class="story-time">${story.time}</div>
+                    </div>
+                    <div class="story-location">📍 ${story.placeName}</div>
+                    <div class="story-preview">${story.content.replace(/<[^>]+>/g, '').substring(0, 100)}...</div>
+                </div>
+            `).join('');
+        }
+
+        // 聚焦到故事地点
+        function focusOnStory(storyId) {
+            const story = stories.find(s => s.id === storyId);
+            if (story) {
+                map.setCenter([story.lng, story.lat]);
+                map.setZoom(16);
+                highlightStoryCard(storyId);
             }
         }
-        
-        // 地图点击事件 - 添加标记
-        map.on('click', function(e) {
-            addMarker([e.lnglat.lng, e.lnglat.lat], '自定义位置');
-            updateStatus('已添加标记: ' + e.lnglat.lng.toFixed(6) + ', ' + e.lnglat.lat.toFixed(6), 'info');
-        });
-        
-        // 允许按回车键搜索
-        document.getElementById('keyword').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchPlace();
+
+        // 高亮故事卡片
+        function highlightStoryCard(storyId) {
+            document.querySelectorAll('.story-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            const card = document.querySelector(`.story-card[data-id="${storyId}"]`);
+            if (card) card.classList.add('active');
+        }
+
+        // 编辑故事
+        function editStory(storyId) {
+            const story = stories.find(s => s.id === storyId);
+            if (!story) return;
+            
+            currentPlace = {
+                name: story.placeName,
+                location: { lng: story.lng, lat: story.lat },
+                address: story.address
+            };
+            
+            openEditor(currentPlace, storyId);
+        }
+
+        // 更新路线连线
+        function updateRouteLine() {
+            if (routeLine) {
+                map.remove(routeLine);
+                routeLine = null;
             }
-        });
+            
+            if (stories.length < 2 || !isRouteVisible) return;
+            
+            const sortedStories = [...stories].sort((a, b) => a.timestamp - b.timestamp);
+            const linePath = sortedStories.map(s => [s.lng, s.lat]);
+            
+            routeLine = new AMap.Polyline({
+                path: linePath,
+                strokeColor: "#3498db",
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+                strokeStyle: "solid"
+            });
+            
+            map.add(routeLine);
+            map.setFitView();
+        }
+
+        // 切换路线显示
+        function toggleRoute() {
+            isRouteVisible = !isRouteVisible;
+            document.getElementById('toggleRoute').textContent = 
+                isRouteVisible ? '📍 隐藏路线图' : '📍 显示路线图';
+            updateRouteLine();
+        }
+
+        // 编辑器功能
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('storyEditor').focus();
+        }
         
-        // 初始化时添加一个标记
-        window.onload = function() {
-            addMarker([116.397428, 39.90923], '天安门', true);
-            updateStatus('地图加载完成', 'success');
-        };
+        function insertImage() {
+            const url = prompt('请输入图片URL（需以http://或https://开头）:');
+            if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                document.execCommand('insertHTML', false, 
+                    `<img src="${url}" style="max-width:100%;border-radius:8px;margin:10px 0;" alt="图片">`);
+            } else if (url) {
+                alert('请输入有效的图片URL');
+            }
+        }
+
+        // 关闭编辑器
+        function closeEditor() {
+            document.getElementById('editorModal').style.display = 'none';
+            document.getElementById('storyEditor').innerHTML = '';
+            editingStoryId = null;
+            currentPlace = null;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AMap === 'undefined') {
+                alert('高德地图加载失败，请检查网络');
+                return;
+            }
+            
+            initMap();
+            
+            // 绑定事件
+            document.getElementById('searchButton').addEventListener('click', performSearch);
+            document.getElementById('searchInput').addEventListener('keydown', function(e) {
+                if (e.keyCode === 13) performSearch();
+            });
+            document.getElementById('saveStory').addEventListener('click', saveStory);
+            document.getElementById('closeEditor').addEventListener('click', closeEditor);
+            document.getElementById('toggleRoute').addEventListener('click', toggleRoute);
+            
+            // 点击模态框外部关闭
+            document.getElementById('editorModal').addEventListener('click', function(e) {
+                if (e.target === this) closeEditor();
+            });
+            
+            console.log('PathLife 故事地图已加载完成');
+        });
     </script>
 </body>
 </html>
