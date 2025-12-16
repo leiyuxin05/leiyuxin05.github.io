@@ -22,6 +22,7 @@
             flex-shrink: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             z-index: 100;
+            height: 70px; /* 固定导航栏高度 */
         }
         
         .nav-left {
@@ -108,7 +109,7 @@
             position: relative;
         }
         
-        /* 控制按钮样式 */
+        /* 控制按钮样式 - 调整位置避免被导航栏遮挡 */
         #toggleRoute, #recordStory, #storyListButton, #manageData, #locateButton {
             position: absolute;
             z-index: 10;
@@ -127,19 +128,19 @@
             gap: 6px;
         }
         
-        #toggleRoute { top: 15px; left: 15px; }
-        #recordStory { top: 15px; right: 15px; background: #2ecc71; color: white; }
-        #storyListButton { top: 60px; right: 15px; background: #9b59b6; color: white; }
-        #manageData { top: 105px; right: 15px; background: #f39c12; color: white; }
+        #toggleRoute { top: 85px; left: 15px; } /* 从15px调整为85px，避免被导航栏遮挡 */
+        #recordStory { top: 85px; right: 15px; background: #2ecc71; color: white; } /* 从15px调整为85px */
+        #storyListButton { top: 130px; right: 15px; background: #9b59b6; color: white; } /* 从60px调整为130px */
+        #manageData { top: 175px; right: 15px; background: #f39c12; color: white; } /* 从105px调整为175px */
         #locateButton { bottom: 15px; right: 15px; background: #3498db; color: white; }
         
         /* 侧边栏样式 - 默认隐藏 */
         #sidebar {
             position: absolute;
-            top: 0;
+            top: 70px; /* 从0调整为70px，从导航栏下方开始 */
             right: 0;
             width: 0;
-            height: 100%;
+            height: calc(100% - 70px); /* 高度减去导航栏高度 */
             background: white;
             border-left: 1px solid #e1e5eb;
             overflow: hidden;
@@ -163,7 +164,7 @@
         
         .sidebar-toggle {
             position: absolute;
-            top: 80px;
+            top: 85px; /* 从80px调整为85px，在导航栏下方 */
             right: 0;
             z-index: 20;
             background: white;
@@ -732,6 +733,7 @@
             
             #navbar {
                 padding: 10px 12px;
+                height: 60px; /* 小屏幕上减少高度 */
             }
             
             .logo h1 {
@@ -747,10 +749,21 @@
                 padding: 6px 10px;
             }
             
+            #sidebar {
+                top: 60px; /* 调整侧边栏位置 */
+                height: calc(100% - 60px);
+            }
+            
             #sidebar.sidebar-open {
                 width: 100%;
                 max-width: 100%;
             }
+            
+            /* 移动端按钮位置调整 */
+            #toggleRoute, #recordStory { top: 70px; }
+            #storyListButton { top: 115px; }
+            #manageData { top: 160px; }
+            .sidebar-toggle { top: 70px; }
             
             .story-list-content {
                 width: 100%;
@@ -764,6 +777,12 @@
             .storage-info {
                 display: none; /* 在非常小的屏幕上隐藏存储信息 */
             }
+            
+            /* 进一步调整按钮位置，确保不会被遮挡 */
+            #toggleRoute, #recordStory { top: 70px; padding: 8px 12px; font-size: 0.8rem; }
+            #storyListButton { top: 110px; padding: 8px 12px; font-size: 0.8rem; }
+            #manageData { top: 150px; padding: 8px 12px; font-size: 0.8rem; }
+            .sidebar-toggle { top: 70px; }
         }
         
         /* 添加移动端优化 */
@@ -965,7 +984,7 @@
     <script>
         // 配置
         const AMapKey = '0874b5c6096d30f6f75ae6949f5c4468';
-        const STORAGE_KEY = 'pathLifeStories_v5'; // 更新版本
+        const STORAGE_KEY = 'pathLifeStories_v6'; // 更新版本
         const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB 最大存储限制
         const MAX_STORIES = 100; // 最多保存100个故事
         
@@ -1052,7 +1071,7 @@
                     // 添加版本信息
                     const dataToSave = stories.map(story => ({
                         ...story,
-                        version: 5
+                        version: 6
                     }));
                     
                     const jsonString = JSON.stringify(dataToSave);
@@ -1165,7 +1184,7 @@
             exportData: function() {
                 try {
                     const data = {
-                        version: 5,
+                        version: 6,
                         exportDate: new Date().toISOString(),
                         totalStories: stories.length,
                         stories: stories
@@ -1567,7 +1586,7 @@
                     day: 'numeric',
                     weekday: 'long'
                 }),
-                version: 5
+                version: 6
             };
             
             // 更新或添加故事
