@@ -42,14 +42,398 @@
         .editor-footer button { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; flex: 1; }
         #saveStory { background: #3498db; color: white; }
         #closeEditor { background: #ecf0f1; color: #333; }
-        #toggleRoute, #recordStory { position: absolute; z-index: 10; background: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: #2c3e50; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 0.9rem; padding: 10px 15px; white-space: nowrap; }
+        #toggleRoute, #recordStory, #storyListButton, #manageData { position: absolute; z-index: 10; background: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: #2c3e50; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 0.9rem; padding: 10px 15px; white-space: nowrap; }
         #toggleRoute { top: 15px; left: 15px; }
         #recordStory { top: 15px; right: 15px; background: #2ecc71; color: white; }
+        #storyListButton { top: 60px; right: 15px; background: #9b59b6; color: white; }
+        #manageData { top: 105px; right: 15px; background: #f39c12; color: white; }
         .status-box { background: #e8f4fd; border: 1px solid #b6e0fe; border-radius: 8px; padding: 12px; margin: 0 15px 12px; font-size: 0.85rem; }
         .status-box.success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
         .status-box.error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .status-box.warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .storage-info { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 10px; margin: 10px 15px; font-size: 0.85rem; }
+        .storage-info progress { width: 100%; height: 8px; margin: 5px 0; }
         .map-loading { display: flex; justify-content: center; align-items: center; height: 100%; background: #f0f2f5; color: #666; font-size: 1rem; }
         #mapLoading { display: none; }
+        
+        /* 日期分组样式 */
+        .date-group {
+          margin-bottom: 20px;
+        }
+        
+        .date-header {
+          position: sticky;
+          top: 0;
+          background: white;
+          padding: 10px 15px;
+          margin: 15px 0 10px 0;
+          border-bottom: 2px solid #3498db;
+          font-weight: 600;
+          color: #2c3e50;
+          z-index: 1;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .date-header .date-count {
+          float: right;
+          background: #3498db;
+          color: white;
+          padding: 2px 8px;
+          border-radius: 10px;
+          font-size: 0.8rem;
+          font-weight: normal;
+        }
+        
+        .date-header .date-label {
+          font-size: 0.9rem;
+          color: #666;
+          margin-top: 2px;
+          font-weight: normal;
+        }
+        
+        .story-group {
+          margin-bottom: 5px;
+        }
+        
+        .empty-date-group {
+          text-align: center;
+          padding: 30px 15px;
+          color: #95a5a6;
+        }
+        
+        .empty-date-group p:first-child {
+          font-size: 1.1rem;
+          margin-bottom: 8px;
+        }
+        
+        .empty-date-group p:last-child {
+          font-size: 0.9rem;
+        }
+        
+        /* 故事列表模态框样式 */
+        .story-list-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .story-list-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 800px;
+            height: 90%;
+            max-height: 800px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .story-list-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            position: relative;
+        }
+
+        .story-list-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .story-list-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .close-story-list {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+
+        .close-story-list:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .story-list-filters {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .search-box span {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: #9b59b6;
+            color: white;
+            border-color: #9b59b6;
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .story-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px;
+        }
+
+        .story-list-date-group {
+            margin-bottom: 25px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .story-list-date-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px 0 10px 0;
+            border-bottom: 2px solid #9b59b6;
+            margin-bottom: 10px;
+            z-index: 2;
+        }
+
+        .story-list-date-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .story-list-date-subtitle {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .story-list-date-count {
+            background: #9b59b6;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .story-list-story {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .story-list-story:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #9b59b6;
+        }
+
+        .story-list-story-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .story-list-story-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 10px;
+        }
+
+        .story-list-story-time {
+            color: #95a5a6;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .story-list-story-location {
+            color: #3498db;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .story-list-story-preview {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-height: 60px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin-bottom: 10px;
+        }
+
+        .story-list-story-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .story-list-story-action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .story-list-story-action-btn.edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .story-list-story-action-btn.delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .story-list-story-action-btn:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .story-list-empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #95a5a6;
+        }
+
+        .story-list-empty-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .story-list-empty h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .story-list-empty p {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .story-list-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        .story-stats {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .story-stats span {
+            font-weight: 600;
+            color: #9b59b6;
+        }
+
+        /* 数据管理模态框 */
+        .data-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .data-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; margin: 10% auto; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .data-content h3 { margin-bottom: 20px; color: #2c3e50; text-align: center; font-size: 1.2rem; }
+        .data-options { display: flex; flex-direction: column; gap: 15px; }
+        .data-option { background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; }
+        .data-option i { font-size: 1.8rem; margin-bottom: 8px; color: #3498db; }
+        .data-option span { display: block; font-weight: 600; color: #2c3e50; font-size: 1rem; }
+        .data-option p { font-size: 0.85rem; color: #7f8c8d; margin-top: 5px; }
+        .close-data { background: #e74c3c; color: white; border: none; border-radius: 8px; padding: 12px; margin-top: 20px; width: 100%; cursor: pointer; font-weight: 600; font-size: 1rem; }
+        /* 确认对话框 */
+        .confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .confirm-content { background: white; border-radius: 15px; width: 85%; max-width: 350px; margin: 30% auto; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .confirm-content h3 { margin-bottom: 15px; color: #2c3e50; text-align: center; }
+        .confirm-message { margin-bottom: 20px; color: #666; font-size: 0.95rem; line-height: 1.4; }
+        .confirm-buttons { display: flex; gap: 10px; }
+        .confirm-buttons button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; }
+        .confirm-cancel { background: #95a5a6; color: white; }
+        .confirm-ok { background: #e74c3c; color: white; }
         /* 图片上传样式 */
         .image-upload-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; }
         .image-upload-content { background: white; border-radius: 15px; width: 90%; max-width: 400px; margin: 20% auto; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
@@ -68,11 +452,30 @@
             #mapContainer { height: 100%; width: 60%; }
             #sidebar { width: 40%; height: 100%; border-left: 1px solid #e1e5eb; border-top: none; }
             .sidebar-toggle { display: none; }
+            #storyListButton { top: 60px; }
+            #manageData { top: 105px; }
         }
         @media (max-width: 767px) {
             .sidebar-toggle { display: block; }
             .sidebar-collapsed #sidebar { display: none; }
             .sidebar-collapsed #mapContainer { height: 100vh; }
+            #storyListButton { top: 60px; }
+            #manageData { top: 105px; }
+            .story-list-content {
+                width: 100%;
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+            .story-list-header {
+                padding: 15px;
+            }
+            .story-list-filters {
+                padding: 10px 15px;
+            }
+            .story-list-container {
+                padding: 0 15px;
+            }
         }
         /* 添加移动端优化 */
         input, textarea, button, select { font-size: 16px; } /* 防止iOS缩放 */
@@ -80,8 +483,8 @@
         /* 故事卡片触摸优化 */
         .story-card { transition: transform 0.2s ease; }
         .story-card:active { transform: scale(0.98); }
-        /* 地图控件优化 */
-        .amap-logo, .amap-copyright { display: none !important; }
+        /* 浮动消息提示 */
+        .floating-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 15px 25px; border-radius: 12px; z-index: 3000; font-size: 1rem; text-align: center; max-width: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body class="no-select">
@@ -91,6 +494,8 @@
     
     <button id="toggleRoute">📍 路线</button>
     <button id="recordStory">📝 记录</button>
+    <button id="storyListButton">📚 故事列表</button>
+    <button id="manageData">💾 数据</button>
     
     <button class="sidebar-toggle" id="sidebarToggle">📖</button>
     
@@ -99,9 +504,22 @@
             <h1>🗺️ PathLife 故事地图</h1>
             <p>记录旅程，串联每个故事瞬间</p>
         </div>
-        <div class="status-box success" id="keyStatus">
-            ✅ 地图已加载
+        
+        <!-- 存储信息显示 -->
+        <div class="storage-info" id="storageInfo">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span>📊 存储状态</span>
+                <span id="storagePercent">0%</span>
+            </div>
+            <progress id="storageProgress" value="0" max="100"></progress>
+            <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                故事: <span id="storyCount">0</span> 个 | 已用: <span id="storageUsed">0 KB</span>
+            </div>
         </div>
+        
+        <div class="status-box success" id="keyStatus">
+        </div>
+        
         <div class="location-box">
             <div class="location-container">
                 <div id="currentLocationInfo">
@@ -114,6 +532,37 @@
             </div>
         </div>
         <div class="stories-list" id="storiesList"></div>
+    </div>
+    
+    <!-- 故事列表模态框 -->
+    <div id="storyListModal" class="story-list-modal">
+        <div class="story-list-content">
+            <div class="story-list-header">
+                <h2>📚 我的故事列表</h2>
+                <p>按日期查看所有故事记录</p>
+                <button class="close-story-list" onclick="closeStoryList()">×</button>
+            </div>
+            <div class="story-list-filters">
+                <div class="search-box">
+                    <input type="text" id="storySearch" placeholder="搜索故事..." oninput="searchStories()">
+                    <span>🔍</span>
+                </div>
+                <div class="filter-options">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="week">本周</button>
+                    <button class="filter-btn" data-filter="month">本月</button>
+                    <button class="filter-btn" data-filter="year">今年</button>
+                </div>
+            </div>
+            <div class="story-list-container" id="storyListContent">
+                <!-- 故事列表内容将在这里动态生成 -->
+            </div>
+            <div class="story-list-footer">
+                <div class="story-stats">
+                    共 <span id="totalStoriesCount">0</span> 个故事，分布在 <span id="totalDaysCount">0</span> 天
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- 编辑器模态框 -->
@@ -133,6 +582,48 @@
             <div class="editor-footer">
                 <button id="closeEditor">取消</button>
                 <button id="saveStory">保存故事</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 数据管理模态框 -->
+    <div id="dataModal" class="data-modal">
+        <div class="data-content">
+            <h3>💾 数据管理</h3>
+            <div class="data-options">
+                <div class="data-option" onclick="exportData()">
+                    <i>📤</i>
+                    <span>导出数据</span>
+                    <p>备份所有故事到本地文件</p>
+                </div>
+                <div class="data-option" onclick="importData()">
+                    <i>📥</i>
+                    <span>导入数据</span>
+                    <p>从备份文件恢复故事</p>
+                </div>
+                <div class="data-option" onclick="clearData()">
+                    <i>🗑️</i>
+                    <span>清空数据</span>
+                    <p>删除所有故事记录</p>
+                </div>
+                <div class="data-option" onclick="optimizeStorage()">
+                    <i>⚙️</i>
+                    <span>优化存储</span>
+                    <p>清理无效数据，释放空间</p>
+                </div>
+                <button class="close-data" onclick="closeDataModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 确认对话框 -->
+    <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-content">
+            <h3 id="confirmTitle">确认操作</h3>
+            <div class="confirm-message" id="confirmMessage"></div>
+            <div class="confirm-buttons">
+                <button class="confirm-cancel" onclick="cancelConfirm()">取消</button>
+                <button class="confirm-ok" onclick="executeConfirm()">确认</button>
             </div>
         </div>
     </div>
@@ -161,10 +652,14 @@
     <!-- 隐藏的文件输入和相机输入 -->
     <input type="file" id="cameraInput" accept="image/*" capture="environment">
     <input type="file" id="fileInput" accept="image/*">
+    <input type="file" id="importFileInput" accept=".json" style="display: none;">
 
     <script>
         // 配置
         const AMapKey = '0874b5c6096d30f6f75ae6949f5c4468';
+        const STORAGE_KEY = 'pathLifeStories_v4'; // 更新版本
+        const MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB 最大存储限制
+        const MAX_STORIES = 100; // 最多保存100个故事
         
         // 全局变量
         let map = null;
@@ -173,16 +668,322 @@
         let editingStoryId = null;
         let routeLine = null;
         let isRouteVisible = false;
-        let stories = JSON.parse(localStorage.getItem('pathLifeStories')) || [];
+        let stories = [];
         let mapInitialized = false;
         let geocoder = null;
         let currentPositionMarker = null;
         let isSidebarCollapsed = false;
+        let pendingConfirmAction = null;
+        let currentStoryFilter = 'all';
+        let searchKeyword = '';
+
+        // 存储管理类
+        const StorageManager = {
+            // 加载故事数据（兼容旧版本数据）
+            loadStories: function() {
+                try {
+                    const savedData = localStorage.getItem(STORAGE_KEY);
+                    if (savedData) {
+                        const parsed = JSON.parse(savedData);
+                        // 验证数据结构
+                        if (Array.isArray(parsed)) {
+                            // 数据迁移：为旧数据添加日期字段
+                            stories = parsed.map(story => {
+                                const timestamp = story.timestamp || Date.now();
+                                const date = story.date || new Date(timestamp).toISOString().split('T')[0];
+                                const dateDisplay = story.dateDisplay || new Date(timestamp).toLocaleDateString('zh-CN', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    weekday: 'long'
+                                });
+                                
+                                return {
+                                    id: story.id || 'story_' + Date.now(),
+                                    title: story.title || '我的故事',
+                                    placeName: story.placeName || '当前位置',
+                                    lng: story.lng || 114.298572,
+                                    lat: story.lat || 30.584355,
+                                    address: story.address || '未知位置',
+                                    content: story.content || '',
+                                    time: story.time || new Date(timestamp).toLocaleString(),
+                                    timestamp: timestamp,
+                                    date: date,
+                                    dateDisplay: dateDisplay,
+                                    version: story.version || 3
+                                };
+                            });
+                            console.log(`加载了 ${stories.length} 个故事，按日期分组`);
+                            return stories;
+                        }
+                    }
+                } catch (error) {
+                    console.error('加载故事数据失败:', error);
+                    this.showMessage('⚠️ 数据加载失败，将使用默认数据');
+                }
+                stories = [];
+                return stories;
+            },
+
+            // 保存故事数据
+            saveStories: function() {
+                try {
+                    // 检查存储容量
+                    const storageSize = this.getStorageSize();
+                    if (storageSize > MAX_STORAGE_SIZE) {
+                        this.showMessage('⚠️ 存储空间不足，将删除最早的故事');
+                        this.cleanupOldStories();
+                    }
+                    
+                    // 限制故事数量
+                    if (stories.length > MAX_STORIES) {
+                        this.showMessage(`⚠️ 已达到最大故事数量(${MAX_STORIES})，删除最早的故事`);
+                        stories = stories.slice(-MAX_STORIES);
+                    }
+                    
+                    // 添加版本信息
+                    const dataToSave = stories.map(story => ({
+                        ...story,
+                        version: 4
+                    }));
+                    
+                    const jsonString = JSON.stringify(dataToSave);
+                    localStorage.setItem(STORAGE_KEY, jsonString);
+                    
+                    // 更新存储显示
+                    this.updateStorageDisplay();
+                    
+                    console.log(`保存了 ${stories.length} 个故事`);
+                    return true;
+                } catch (error) {
+                    console.error('保存故事数据失败:', error);
+                    this.showMessage('❌ 保存失败，存储空间可能不足');
+                    return false;
+                }
+            },
+
+            // 获取存储大小
+            getStorageSize: function() {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? new Blob([data]).size : 0;
+            },
+
+            // 更新存储显示
+            updateStorageDisplay: function() {
+                const storageSize = this.getStorageSize();
+                const percent = Math.min(Math.round((storageSize / MAX_STORAGE_SIZE) * 100), 100);
+                
+                document.getElementById('storageProgress').value = percent;
+                document.getElementById('storagePercent').textContent = percent + '%';
+                document.getElementById('storageUsed').textContent = this.formatBytes(storageSize);
+                document.getElementById('storyCount').textContent = stories.length;
+                
+                // 更新状态颜色
+                const storageInfo = document.getElementById('storageInfo');
+                if (percent > 90) {
+                    storageInfo.style.background = '#fff3cd';
+                    storageInfo.style.borderColor = '#ffeaa7';
+                } else if (percent > 70) {
+                    storageInfo.style.background = '#e8f4fd';
+                    storageInfo.style.borderColor = '#b6e0fe';
+                } else {
+                    storageInfo.style.background = '#f8f9fa';
+                    storageInfo.style.borderColor = '#e9ecef';
+                }
+            },
+
+            // 格式化字节大小
+            formatBytes: function(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+
+            // 清理旧故事
+            cleanupOldStories: function() {
+                if (stories.length > 0) {
+                    // 按时间排序，保留最新的80%
+                    stories.sort((a, b) => b.timestamp - a.timestamp);
+                    const keepCount = Math.floor(stories.length * 0.8);
+                    stories = stories.slice(0, keepCount);
+                    this.saveStories();
+                }
+            },
+
+            // 优化存储空间
+            optimizeStorage: function() {
+                const originalCount = stories.length;
+                
+                // 1. 删除内容为空的故事
+                stories = stories.filter(story => 
+                    story.content && story.content.trim().length > 0
+                );
+                
+                // 2. 压缩图片数据（移除过大的base64图片）
+                stories = stories.map(story => {
+                    if (story.content && story.content.includes('base64')) {
+                        // 查找并压缩base64图片
+                        const compressedContent = story.content.replace(
+                            /<img[^>]+src="data:image[^"]+"[^>]*>/g, 
+                            '<img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECIwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iiiigD/2Q==" style="max-width:100%;border-radius:8px;margin:10px 0;" alt="[图片已压缩]">'
+                        );
+                        return { ...story, content: compressedContent };
+                    }
+                    return story;
+                });
+                
+                // 3. 移除重复的故事（基于内容和位置）
+                const seen = new Set();
+                stories = stories.filter(story => {
+                    const key = `${story.lng}_${story.lat}_${story.title}_${story.timestamp}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+                
+                this.saveStories();
+                
+                const removedCount = originalCount - stories.length;
+                if (removedCount > 0) {
+                    this.showMessage(`✅ 优化完成，删除了 ${removedCount} 个无效故事`);
+                } else {
+                    this.showMessage('✅ 存储已是最优状态');
+                }
+            },
+
+            // 导出数据
+            exportData: function() {
+                try {
+                    const data = {
+                        version: 4,
+                        exportDate: new Date().toISOString(),
+                        totalStories: stories.length,
+                        stories: stories
+                    };
+                    
+                    const jsonString = JSON.stringify(data, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `PathLife_Backup_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    URL.revokeObjectURL(url);
+                    
+                    this.showMessage(`✅ 已导出 ${stories.length} 个故事`);
+                    return true;
+                } catch (error) {
+                    console.error('导出数据失败:', error);
+                    this.showMessage('❌ 导出失败');
+                    return false;
+                }
+            },
+
+            // 导入数据
+            importData: function() {
+                document.getElementById('importFileInput').click();
+            },
+
+            // 处理导入文件
+            handleImportFile: function(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        let importedStories = [];
+                        
+                        if (Array.isArray(importedData)) {
+                            // 旧版本格式
+                            importedStories = importedData;
+                        } else if (importedData.stories && Array.isArray(importedData.stories)) {
+                            // 新版本格式
+                            importedStories = importedData.stories;
+                        } else {
+                            throw new Error('无效的数据格式');
+                        }
+                        
+                        // 验证数据并添加日期字段
+                        const validStories = importedStories.filter(story => 
+                            story && story.id && story.title && story.lng && story.lat
+                        ).map(story => {
+                            const timestamp = story.timestamp || Date.now();
+                            const date = story.date || new Date(timestamp).toISOString().split('T')[0];
+                            const dateDisplay = story.dateDisplay || new Date(timestamp).toLocaleDateString('zh-CN', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                weekday: 'long'
+                            });
+                            
+                            return {
+                                ...story,
+                                date: date,
+                                dateDisplay: dateDisplay
+                            };
+                        });
+                        
+                        if (validStories.length === 0) {
+                            throw new Error('没有找到有效的故事数据');
+                        }
+                        
+                        // 合并数据（避免重复）
+                        const existingIds = new Set(stories.map(s => s.id));
+                        const newStories = validStories.filter(story => !existingIds.has(story.id));
+                        
+                        if (newStories.length > 0) {
+                            stories = [...stories, ...newStories];
+                            this.saveStories();
+                            this.showMessage(`✅ 已导入 ${newStories.length} 个新故事`);
+                            renderStoryList();
+                            loadStoriesOnMap();
+                        } else {
+                            this.showMessage('ℹ️ 没有发现新的故事数据');
+                        }
+                    } catch (error) {
+                        console.error('导入数据失败:', error);
+                        this.showMessage('❌ 导入失败: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            },
+
+            // 清空所有数据
+            clearAllData: function() {
+                pendingConfirmAction = () => {
+                    const count = stories.length;
+                    stories = [];
+                    localStorage.removeItem(STORAGE_KEY);
+                    this.updateStorageDisplay();
+                    renderStoryList();
+                    loadStoriesOnMap();
+                    this.showMessage(`✅ 已删除 ${count} 个故事`);
+                    closeDataModal();
+                };
+                showConfirm('清空所有数据', '确定要删除所有故事数据吗？此操作不可恢复。');
+            },
+
+            // 显示消息
+            showMessage: function(message, duration = 2000) {
+                const msg = document.createElement('div');
+                msg.className = 'floating-message';
+                msg.textContent = message;
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), duration);
+            }
+        };
+
+        // 初始化存储
+        stories = StorageManager.loadStories();
 
         // 检查高德地图API是否加载成功
         function checkAMapLoaded() {
             if (typeof AMap === 'undefined') {
-                document.getElementById('keyStatus').innerHTML = '❌ 地图加载失败';
                 document.getElementById('keyStatus').className = 'status-box error';
                 return false;
             }
@@ -244,7 +1045,6 @@
             } catch (error) {
                 console.error('地图初始化失败:', error);
                 document.getElementById('mapLoading').style.display = 'none';
-                document.getElementById('keyStatus').innerHTML = '❌ 地图加载失败';
                 document.getElementById('keyStatus').className = 'status-box error';
             }
         }
@@ -329,15 +1129,11 @@
                     
                     // 更新当前位置信息
                     if (currentPlace) {
-                        currentPlace.name = result.regeocode.addressComponent.neighborhood || 
-                                          result.regeocode.addressComponent.street || 
-                                          '当前位置';
                         currentPlace.address = address;
                     }
                 } else {
                     document.getElementById('locationAddress').textContent = '无法获取详细地址';
                     if (currentPlace) {
-                        currentPlace.name = '当前位置';
                         currentPlace.address = '坐标: ' + lng.toFixed(6) + ', ' + lat.toFixed(6);
                     }
                 }
@@ -352,16 +1148,45 @@
         // 打开编辑器
         function openEditor(place, storyId = null) {
             if (!place) {
-                alert('请先获取位置信息');
+                StorageManager.showMessage('请先获取位置信息');
                 return;
             }
             
             editingStoryId = storyId;
-            document.getElementById('editorLocation').innerHTML = `
-                <strong>地点：</strong>${place.name || '当前位置'}<br>
-                <small>${place.address || '坐标: ' + place.location.lng.toFixed(6) + ', ' + place.location.lat.toFixed(6)}</small>
+            
+            // 设置编辑器位置信息区域
+            const editorLocation = document.getElementById('editorLocation');
+            editorLocation.innerHTML = `
+                <div style="margin-bottom: 10px;">
+                    <label for="placeNameInput" style="display: block; margin-bottom: 5px; font-weight: 600; color: #2c3e50;">
+                        地点名称：
+                    </label>
+                    <input type="text" id="placeNameInput" 
+                           placeholder="为这个地点起个名字（如：我的秘密基地）" 
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+                </div>
+                <div>
+                    <strong>详细地址：</strong><br>
+                    <small id="editorAddressDetail"></small>
+                </div>
             `;
             
+            const addressDetail = document.getElementById('editorAddressDetail');
+            
+            // 设置默认地点名称和详细地址
+            if (storyId) {
+                const story = stories.find(s => s.id === storyId);
+                document.getElementById('placeNameInput').value = story?.placeName || '我的地点';
+                addressDetail.textContent = story?.address || 
+                    `坐标: ${place.location.lng.toFixed(6)}, ${place.location.lat.toFixed(6)}`;
+            } else {
+                // 新故事：使用自动获取的地址作为默认地点名称
+                document.getElementById('placeNameInput').value = '';
+                addressDetail.textContent = place.address || 
+                    `坐标: ${place.location.lng.toFixed(6)}, ${place.location.lat.toFixed(6)}`;
+            }
+            
+            // 设置编辑器内容
             const editor = document.getElementById('storyEditor');
             if (storyId) {
                 const story = stories.find(s => s.id === storyId);
@@ -371,7 +1196,9 @@
             }
             
             document.getElementById('editorModal').style.display = 'block';
-            setTimeout(() => editor.focus(), 100);
+            setTimeout(() => {
+                document.getElementById('placeNameInput').focus();
+            }, 100);
         }
 
         // 保存故事
@@ -382,21 +1209,40 @@
             const content = editor.innerHTML.trim();
             const textContent = editor.innerText.trim();
             
+            // 获取用户输入的地点名称
+            const placeNameInput = document.getElementById('placeNameInput');
+            const placeName = placeNameInput.value.trim() || '我的地点';
+            
             if (!textContent || textContent === '在此写下你的故事...') {
-                alert('请输入故事内容');
+                StorageManager.showMessage('请输入故事内容');
                 return;
             }
             
             const storyData = {
-                id: editingStoryId || Date.now().toString(),
+                id: editingStoryId || 'story_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 title: textContent.substring(0, 30) || '我的故事',
-                placeName: currentPlace.name || '当前位置',
+                placeName: placeName, // 使用用户输入的地点名称
                 lng: currentPlace.location.lng,
                 lat: currentPlace.location.lat,
                 address: currentPlace.address || `坐标: ${currentPlace.location.lng.toFixed(6)}, ${currentPlace.location.lat.toFixed(6)}`,
                 content: content,
-                time: new Date().toLocaleString(),
-                timestamp: Date.now()
+                time: new Date().toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                timestamp: Date.now(),
+                // 添加日期分组字段
+                date: new Date().toISOString().split('T')[0], // 格式: YYYY-MM-DD
+                dateDisplay: new Date().toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                }),
+                version: 4
             };
             
             // 更新或添加故事
@@ -411,18 +1257,13 @@
             stories.sort((a, b) => b.timestamp - a.timestamp);
             
             // 保存到本地存储
-            localStorage.setItem('pathLifeStories', JSON.stringify(stories));
-            
-            // 更新界面
-            loadStoriesOnMap();
-            renderStoryList();
-            closeEditor();
-            
-            // 移动端友好的提示
-            const msg = document.createElement('div');
-            msg.innerHTML = '<div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); color:white; padding:15px 25px; border-radius:10px; z-index:3000;">✅ 故事已保存！</div>';
-            document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 2000);
+            if (StorageManager.saveStories()) {
+                // 更新界面
+                loadStoriesOnMap();
+                renderStoryList();
+                closeEditor();
+                StorageManager.showMessage('✅ 故事已保存！');
+            }
         }
 
         // 在地图上加载故事标记
@@ -456,7 +1297,10 @@
                                 <div style="font-size:13px;line-height:1.4;max-height:80px;overflow:hidden;">
                                     ${story.content.replace(/<[^>]+>/g, '').substring(0, 80)}...
                                 </div>
-                                <button onclick="editStory('${story.id}')" style="background:#3498db;color:white;border:none;padding:5px 10px;border-radius:4px;margin-top:8px;cursor:pointer;font-size:12px;">编辑</button>
+                                <div style="margin-top:10px;display:flex;gap:5px;">
+                                    <button onclick="editStory('${story.id}')" style="background:#3498db;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">编辑</button>
+                                    <button onclick="deleteStory('${story.id}')" style="background:#e74c3c;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">删除</button>
+                                </div>
                             </div>
                         `
                     });
@@ -469,30 +1313,361 @@
             updateRouteLine();
         }
 
-        // 渲染故事列表
+        // 渲染故事列表（侧边栏）
         function renderStoryList() {
             const container = document.getElementById('storiesList');
             
             if (stories.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align:center;padding:30px 15px;color:#95a5a6;">
-                        <p style="font-size:1.1rem;margin-bottom:8px;">还没有故事记录</p>
-                        <p style="font-size:0.9rem;">点击地图选择位置，然后点击"记录"按钮开始记录</p>
+                    <div class="empty-date-group">
+                        <p>还没有故事记录</p>
+                        <p>点击地图选择位置，然后点击"记录"按钮开始记录</p>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = stories.map(story => `
-                <div class="story-card" data-id="${story.id}" onclick="focusOnStory('${story.id}')">
-                    <div class="story-header">
-                        <div class="story-title">${story.title}</div>
-                        <div class="story-time">${story.time}</div>
+            // 按日期分组
+            const groupedStories = groupStoriesByDate(stories);
+            
+            // 生成HTML
+            let html = '';
+            
+            Object.keys(groupedStories).sort().reverse().forEach(date => {
+                const storiesForDate = groupedStories[date];
+                const dateObj = new Date(date);
+                const today = new Date().toISOString().split('T')[0];
+                const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                
+                // 格式化日期显示
+                let dateDisplay = date;
+                if (date === today) {
+                    dateDisplay = '今天';
+                } else if (date === yesterday) {
+                    dateDisplay = '昨天';
+                } else {
+                    dateDisplay = dateObj.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                }
+                
+                html += `
+                    <div class="date-group">
+                        <div class="date-header">
+                            ${dateDisplay}
+                            <span class="date-count">${storiesForDate.length}个故事</span>
+                            <div class="date-label">${date}</div>
+                        </div>
+                        <div class="story-group">
+                            ${storiesForDate.map(story => `
+                                <div class="story-card" data-id="${story.id}" onclick="focusOnStory('${story.id}')">
+                                    <div class="story-header">
+                                        <div class="story-title">${story.title}</div>
+                                        <div class="story-time">${story.time.split(' ')[1]}</div>
+                                    </div>
+                                    <div class="story-location">📍 ${story.placeName}</div>
+                                    <div class="story-preview">${story.content.replace(/<[^>]+>/g, '').substring(0, 80)}...</div>
+                                    <div style="display:flex;gap:8px;margin-top:10px;">
+                                        <button onclick="editStory('${story.id}'); event.stopPropagation();" style="flex:1;background:#3498db;color:white;border:none;padding:6px;border-radius:6px;font-size:0.8rem;">编辑</button>
+                                        <button onclick="deleteStory('${story.id}'); event.stopPropagation();" style="flex:1;background:#e74c3c;color:white;border:none;padding:6px;border-radius:6px;font-size:0.8rem;">删除</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
-                    <div class="story-location">📍 ${story.placeName}</div>
-                    <div class="story-preview">${story.content.replace(/<[^>]+>/g, '').substring(0, 80)}...</div>
-                </div>
-            `).join('');
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 按日期分组故事
+        function groupStoriesByDate(stories) {
+            const grouped = {};
+            
+            // 按时间戳排序（最新的在前面）
+            const sortedStories = [...stories].sort((a, b) => b.timestamp - a.timestamp);
+            
+            sortedStories.forEach(story => {
+                // 使用已有的date字段，如果没有则从timestamp生成
+                const date = story.date || new Date(story.timestamp).toISOString().split('T')[0];
+                
+                if (!grouped[date]) {
+                    grouped[date] = [];
+                }
+                grouped[date].push(story);
+            });
+            
+            return grouped;
+        }
+
+        // 打开故事列表模态框
+        function openStoryList() {
+            document.getElementById('storyListModal').style.display = 'block';
+            renderStoryListModal();
+            document.getElementById('storySearch').focus();
+        }
+
+        // 关闭故事列表模态框
+        function closeStoryList() {
+            document.getElementById('storyListModal').style.display = 'none';
+            // 重置搜索和筛选
+            document.getElementById('storySearch').value = '';
+            searchKeyword = '';
+            currentStoryFilter = 'all';
+            updateFilterButtons();
+        }
+
+        // 渲染故事列表模态框
+        function renderStoryListModal() {
+            const container = document.getElementById('storyListContent');
+            
+            if (stories.length === 0) {
+                container.innerHTML = `
+                    <div class="story-list-empty">
+                        <div class="story-list-empty-icon">📚</div>
+                        <h3>还没有故事记录</h3>
+                        <p>开始记录你的旅程故事，让回忆有迹可循</p>
+                        <button onclick="closeStoryList(); recordStory();" style="background:#9b59b6;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                            开始记录第一个故事
+                        </button>
+                    </div>
+                `;
+                updateStoryStats();
+                return;
+            }
+            
+            // 筛选故事
+            let filteredStories = filterStories(stories, currentStoryFilter, searchKeyword);
+            
+            // 按日期分组
+            const groupedStories = groupStoriesByDate(filteredStories);
+            
+            if (Object.keys(groupedStories).length === 0) {
+                container.innerHTML = `
+                    <div class="story-list-empty">
+                        <div class="story-list-empty-icon">🔍</div>
+                        <h3>没有找到匹配的故事</h3>
+                        <p>尝试调整搜索关键词或筛选条件</p>
+                        <button onclick="resetFilters()" style="background:#9b59b6;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;">
+                            显示所有故事
+                        </button>
+                    </div>
+                `;
+                updateStoryStats();
+                return;
+            }
+            
+            // 生成HTML
+            let html = '';
+            
+            Object.keys(groupedStories).sort().reverse().forEach(date => {
+                const storiesForDate = groupedStories[date];
+                const dateObj = new Date(date);
+                const today = new Date().toISOString().split('T')[0];
+                const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                
+                // 格式化日期显示
+                let dateDisplay = '';
+                let dateSubtitle = date;
+                
+                if (date === today) {
+                    dateDisplay = '今天';
+                } else if (date === yesterday) {
+                    dateDisplay = '昨天';
+                } else {
+                    dateDisplay = dateObj.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                    dateSubtitle = dateObj.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                }
+                
+                html += `
+                    <div class="story-list-date-group">
+                        <div class="story-list-date-header">
+                            <div class="story-list-date-title">${dateDisplay}</div>
+                            <div class="story-list-date-subtitle">
+                                <span>${dateSubtitle}</span>
+                                <span class="story-list-date-count">${storiesForDate.length}个故事</span>
+                            </div>
+                        </div>
+                        ${storiesForDate.map(story => `
+                            <div class="story-list-story" onclick="focusOnStoryFromList('${story.id}')">
+                                <div class="story-list-story-header">
+                                    <div class="story-list-story-title">${story.title}</div>
+                                    <div class="story-list-story-time">${story.time.split(' ')[1]}</div>
+                                </div>
+                                <div class="story-list-story-location">📍 ${story.placeName}</div>
+                                <div class="story-list-story-preview">${story.content.replace(/<[^>]+>/g, '').substring(0, 100)}...</div>
+                                <div class="story-list-story-actions">
+                                    <button class="story-list-story-action-btn edit" onclick="editStoryFromList('${story.id}'); event.stopPropagation();">编辑</button>
+                                    <button class="story-list-story-action-btn delete" onclick="deleteStoryFromList('${story.id}'); event.stopPropagation();">删除</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updateStoryStats(filteredStories, Object.keys(groupedStories).length);
+        }
+
+        // 筛选故事
+        function filterStories(stories, filter, keyword) {
+            let filtered = stories;
+            
+            // 应用时间筛选
+            const now = new Date();
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            
+            if (filter === 'week') {
+                filtered = filtered.filter(story => {
+                    const storyDate = new Date(story.timestamp);
+                    return storyDate >= oneWeekAgo;
+                });
+            } else if (filter === 'month') {
+                filtered = filtered.filter(story => {
+                    const storyDate = new Date(story.timestamp);
+                    return storyDate >= oneMonthAgo;
+                });
+            } else if (filter === 'year') {
+                filtered = filtered.filter(story => {
+                    const storyDate = new Date(story.timestamp);
+                    return storyDate >= oneYearAgo;
+                });
+            }
+            
+            // 应用搜索筛选
+            if (keyword && keyword.trim() !== '') {
+                const searchTerm = keyword.trim().toLowerCase();
+                filtered = filtered.filter(story => 
+                    story.title.toLowerCase().includes(searchTerm) ||
+                    story.placeName.toLowerCase().includes(searchTerm) ||
+                    story.content.toLowerCase().includes(searchTerm) ||
+                    story.address.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            return filtered;
+        }
+
+        // 搜索故事
+        function searchStories() {
+            searchKeyword = document.getElementById('storySearch').value;
+            renderStoryListModal();
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('storySearch').value = '';
+            searchKeyword = '';
+            currentStoryFilter = 'all';
+            updateFilterButtons();
+            renderStoryListModal();
+        }
+
+        // 更新筛选按钮状态
+        function updateFilterButtons() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === currentStoryFilter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // 设置筛选
+        function setStoryFilter(filter) {
+            currentStoryFilter = filter;
+            updateFilterButtons();
+            renderStoryListModal();
+        }
+
+        // 更新故事统计
+        function updateStoryStats(filteredStories = stories, dayCount = null) {
+            const totalStories = stories.length;
+            const filteredCount = filteredStories.length;
+            const totalDays = new Set(stories.map(s => s.date)).size;
+            const filteredDays = dayCount || new Set(filteredStories.map(s => s.date)).size;
+            
+            document.getElementById('totalStoriesCount').textContent = filteredCount;
+            document.getElementById('totalDaysCount').textContent = filteredDays;
+            
+            // 如果正在筛选，显示筛选后的数量
+            if (filteredCount !== totalStories || currentStoryFilter !== 'all' || searchKeyword) {
+                document.getElementById('totalStoriesCount').textContent = `${filteredCount}/${totalStories}`;
+            }
+        }
+
+        // 从故事列表聚焦到故事
+        function focusOnStoryFromList(storyId) {
+            const story = stories.find(s => s.id === storyId);
+            if (story && map) {
+                map.setCenter([story.lng, story.lat]);
+                map.setZoom(16);
+                closeStoryList();
+                highlightStoryCard(storyId);
+                StorageManager.showMessage(`📍 已定位到: ${story.placeName}`);
+            }
+        }
+
+        // 从故事列表编辑故事
+        function editStoryFromList(storyId) {
+            const story = stories.find(s => s.id === storyId);
+            if (!story) return;
+            
+            currentPlace = {
+                location: { lng: story.lng, lat: story.lat },
+                address: story.address
+            };
+            
+            closeStoryList();
+            openEditor(currentPlace, storyId);
+        }
+
+        // 从故事列表删除故事
+        function deleteStoryFromList(storyId) {
+            pendingConfirmAction = () => {
+                const story = stories.find(s => s.id === storyId);
+                if (story) {
+                    stories = stories.filter(s => s.id !== storyId);
+                    StorageManager.saveStories();
+                    loadStoriesOnMap();
+                    renderStoryList();
+                    renderStoryListModal(); // 更新模态框中的列表
+                    StorageManager.showMessage(`✅ 已删除故事: ${story.title}`);
+                }
+            };
+            showConfirm('删除故事', '确定要删除这个故事吗？');
+        }
+
+        // 删除单个故事
+        function deleteStory(storyId) {
+            pendingConfirmAction = () => {
+                const story = stories.find(s => s.id === storyId);
+                if (story) {
+                    stories = stories.filter(s => s.id !== storyId);
+                    StorageManager.saveStories();
+                    loadStoriesOnMap();
+                    renderStoryList();
+                    StorageManager.showMessage(`✅ 已删除故事: ${story.title}`);
+                }
+            };
+            showConfirm('删除故事', '确定要删除这个故事吗？');
         }
 
         // 聚焦到故事地点
@@ -520,7 +1695,6 @@
             if (!story) return;
             
             currentPlace = {
-                name: story.placeName,
                 location: { lng: story.lng, lat: story.lat },
                 address: story.address
             };
@@ -570,6 +1744,61 @@
                 isSidebarCollapsed ? '📖' : '🗺️';
         }
 
+        // 打开数据管理模态框
+        function openDataModal() {
+            document.getElementById('dataModal').style.display = 'block';
+        }
+
+        // 关闭数据管理模态框
+        function closeDataModal() {
+            document.getElementById('dataModal').style.display = 'none';
+        }
+
+        // 导出数据
+        function exportData() {
+            StorageManager.exportData();
+            closeDataModal();
+        }
+
+        // 导入数据
+        function importData() {
+            StorageManager.importData();
+            closeDataModal();
+        }
+
+        // 清空数据
+        function clearData() {
+            StorageManager.clearAllData();
+        }
+
+        // 优化存储
+        function optimizeStorage() {
+            StorageManager.optimizeStorage();
+            closeDataModal();
+        }
+
+        // 显示确认对话框
+        function showConfirm(title, message) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+
+        // 取消确认
+        function cancelConfirm() {
+            document.getElementById('confirmModal').style.display = 'none';
+            pendingConfirmAction = null;
+        }
+
+        // 执行确认操作
+        function executeConfirm() {
+            document.getElementById('confirmModal').style.display = 'none';
+            if (pendingConfirmAction) {
+                pendingConfirmAction();
+                pendingConfirmAction = null;
+            }
+        }
+
         // 编辑器功能
         function formatText(command) {
             document.execCommand(command, false, null);
@@ -601,7 +1830,13 @@
         // 处理图片上传
         function handleImageUpload(file) {
             if (!file.type.startsWith('image/')) {
-                alert('请选择图片文件');
+                StorageManager.showMessage('请选择图片文件');
+                return;
+            }
+            
+            // 检查图片大小（限制为1MB）
+            if (file.size > 1024 * 1024) {
+                StorageManager.showMessage('图片大小不能超过1MB');
                 return;
             }
             
@@ -641,11 +1876,7 @@
         // 记录故事按钮点击
         function recordStory() {
             if (!currentPlace) {
-                // 移动端友好的提示
-                const msg = document.createElement('div');
-                msg.innerHTML = '<div style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.8); color:white; padding:15px 25px; border-radius:10px; z-index:3000;">请先获取位置信息</div>';
-                document.body.appendChild(msg);
-                setTimeout(() => msg.remove(), 2000);
+                StorageManager.showMessage('请先获取位置信息');
                 return;
             }
             openEditor(currentPlace);
@@ -671,13 +1902,23 @@
                 initMap();
             }
             
+            // 初始化存储显示
+            StorageManager.updateStorageDisplay();
+            
             // 绑定事件
             document.getElementById('locateButton').addEventListener('click', autoLocate);
             document.getElementById('saveStory').addEventListener('click', saveStory);
             document.getElementById('closeEditor').addEventListener('click', closeEditor);
             document.getElementById('toggleRoute').addEventListener('click', toggleRoute);
             document.getElementById('recordStory').addEventListener('click', recordStory);
+            document.getElementById('storyListButton').addEventListener('click', openStoryList);
+            document.getElementById('manageData').addEventListener('click', openDataModal);
             document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+            
+            // 绑定筛选按钮事件
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => setStoryFilter(btn.dataset.filter));
+            });
             
             // 图片上传事件
             document.getElementById('cameraInput').addEventListener('change', function(e) {
@@ -692,13 +1933,32 @@
                 }
             });
             
+            // 导入文件事件
+            document.getElementById('importFileInput').addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    StorageManager.handleImportFile(e.target.files[0]);
+                }
+            });
+            
             // 点击模态框外部关闭
             document.getElementById('editorModal').addEventListener('click', function(e) {
                 if (e.target === this) closeEditor();
             });
             
+            document.getElementById('storyListModal').addEventListener('click', function(e) {
+                if (e.target === this) closeStoryList();
+            });
+            
             document.getElementById('imageUploadModal').addEventListener('click', function(e) {
                 if (e.target === this) closeImageUpload();
+            });
+            
+            document.getElementById('dataModal').addEventListener('click', function(e) {
+                if (e.target === this) closeDataModal();
+            });
+            
+            document.getElementById('confirmModal').addEventListener('click', function(e) {
+                if (e.target === this) cancelConfirm();
             });
             
             // 适配移动端键盘弹出
@@ -710,6 +1970,9 @@
                     }, 300);
                 }
             });
+            
+            // 定期检查存储状态
+            setInterval(() => StorageManager.updateStorageDisplay(), 30000);
         };
     </script>
 </body>
